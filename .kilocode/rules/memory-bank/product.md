@@ -1,4 +1,4 @@
-# Product Overview - SQS Viewer & Lambda Watcher
+# Product Overview - Kuri AWS Watcher & Lambda Watcher
 
 ## Por que este projeto existe?
 

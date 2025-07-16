@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Utilitários de configuração para SQS Viewer & Lambda Watcher
+Utilitários de configuração para Kuri AWS Watcher & Lambda Watcher
 Centraliza a lógica de construção de URLs e configurações usando variáveis de ambiente
 """
 

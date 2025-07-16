@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O SQS Viewer & Lambda Watcher é uma suíte de scripts Python independentes que compartilham uma arquitetura modular baseada em configuração centralizada.
+O Kuri AWS Watcher & Lambda Watcher é uma suíte de scripts Python independentes que compartilham uma arquitetura modular baseada em configuração centralizada.
 
 ## Estrutura de Arquivos
 

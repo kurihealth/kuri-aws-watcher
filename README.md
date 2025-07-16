@@ -1,4 +1,4 @@
-# SQS Viewer & Lambda Watcher
+# Kuri AWS Watcher & Lambda Watcher
 
 Uma suíte de scripts Python para monitoramento e observabilidade de serviços AWS, incluindo filas Amazon SQS (com foco em Dead Letter Queues) e funções Lambda através do CloudWatch.
 

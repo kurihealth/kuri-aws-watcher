@@ -79,7 +79,7 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Arquivos de saída do SQS Viewer
+# Arquivos de saída do Kuri AWS Watcher
 dlq_items_*.json
 lambda_logs_*.json
 *.log
