@@ -24,6 +24,7 @@ config_manager = ConfigManager()
 # Obter lista de filas usando o utilitário de configuração
 queue_url_list = config_manager.sqs_config.get_all_queue_list()
 
+REFRESH_INTERVAL = int(os.getenv("REFRESH_INTERVAL", 10))
 # Configuração do logging
 LOG_INTERVAL_SECONDS = int(
     os.getenv("LOG_INTERVAL_SECONDS", "60")
@@ -102,7 +103,7 @@ def format_output(data: dict) -> None:
 
 if __name__ == "__main__":
     print("🚀 Iniciando monitoramento SQS...")
-    print("⏰ Atualizações a cada 10 segundos")
+    print(f"⏰ Atualizações a cada {REFRESH_INTERVAL} segundos")
     print(f"💾 Salvamento em log a cada {LOG_INTERVAL_SECONDS} segundos")
     print(f"📁 Arquivo de log: {LOG_FILE_PATH}")
     print("🛑 Pressione Ctrl+C para parar\n")
@@ -120,7 +121,7 @@ if __name__ == "__main__":
                 save_to_log(response)
                 last_log_time = current_time
 
-            time.sleep(10)
+            time.sleep(REFRESH_INTERVAL)
     except KeyboardInterrupt:
         print("\n\n👋 Monitoramento interrompido pelo usuário.")
     except Exception as e:
