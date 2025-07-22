@@ -33,6 +33,89 @@ LOG_FILE_PATH = os.getenv("LOG_FILE_PATH", "sqs_monitoring.log")
 SAVE_TO_LOG = True if os.getenv("SAVE_TO_LOG", "false") == "true" else False
 
 
+class QueueChangeTracker:
+    """Classe para rastrear mudanças nas contagens das filas SQS"""
+
+    def __init__(self):
+        self.previous_counts = {}
+        self.changes_log_file = os.getenv("CHANGES_LOG_FILE_PATH", "sqs_changes.log")
+
+    def detect_changes(self, current_counts: dict) -> dict:
+        """Detecta mudanças entre contagens atual e anterior"""
+        changes = {}
+
+        for queue_name, current_count in current_counts.items():
+            # Ignorar valores de erro
+            if not isinstance(current_count, int):
+                continue
+
+            previous_count = self.previous_counts.get(queue_name, None)
+
+            # Se é a primeira execução, apenas armazena o valor
+            if previous_count is None:
+                self.previous_counts[queue_name] = current_count
+                continue
+
+            # Calcular delta
+            delta = current_count - previous_count
+
+            # Se houve mudança, registrar
+            if delta != 0:
+                changes[queue_name] = {
+                    'previous_count': previous_count,
+                    'current_count': current_count,
+                    'delta': delta,
+                    'change_type': 'increase' if delta > 0 else 'decrease',
+                }
+
+            # Atualizar contagem anterior
+            self.previous_counts[queue_name] = current_count
+
+        return changes
+
+    def log_changes(self, changes: dict) -> None:
+        """Registra mudanças detectadas em arquivo de log"""
+        if not SAVE_TO_LOG:
+            return
+        if not changes:
+            return
+
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            for queue_name, change_data in changes.items():
+                log_entry = {
+                    "timestamp": timestamp,
+                    "queue_name": queue_name,
+                    "previous_count": change_data['previous_count'],
+                    "current_count": change_data['current_count'],
+                    "delta": change_data['delta'],
+                    "change_type": change_data['change_type'],
+                }
+
+                # Salvar no arquivo de mudanças
+                with open(self.changes_log_file, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
+
+            # Feedback visual
+            total_changes = len(changes)
+            print(
+                f"🔄 {total_changes} mudança(s) detectada(s) e registrada(s) em: {self.changes_log_file}"
+            )
+
+            # Mostrar resumo das mudanças
+            for queue_name, change_data in changes.items():
+                delta = change_data['delta']
+                icon = "📈" if delta > 0 else "📉"
+                sign = "+" if delta > 0 else ""
+                print(
+                    f"   {icon} {queue_name}: {change_data['previous_count']} → {change_data['current_count']} ({sign}{delta})"
+                )
+
+        except Exception as e:
+            print(f"❌ Erro ao registrar mudanças: {str(e)}")
+
+
 def save_to_log(data: dict, log_file: str = LOG_FILE_PATH) -> None:
     """Salva os dados de monitoramento em arquivo de log"""
     try:
@@ -102,10 +185,14 @@ def format_output(data: dict) -> None:
 
 
 if __name__ == "__main__":
+    # Inicializar tracker de mudanças
+    change_tracker = QueueChangeTracker()
+
     print("🚀 Iniciando monitoramento SQS...")
     print(f"⏰ Atualizações a cada {REFRESH_INTERVAL} segundos")
     print(f"💾 Salvamento em log a cada {LOG_INTERVAL_SECONDS} segundos")
     print(f"📁 Arquivo de log: {LOG_FILE_PATH}")
+    print(f"🔄 Arquivo de mudanças: {change_tracker.changes_log_file}")
     print("🛑 Pressione Ctrl+C para parar\n")
 
     try:
@@ -115,11 +202,10 @@ if __name__ == "__main__":
             response = run()
             format_output(response)
 
-            # Verificar se é hora de salvar no log
-            current_time = time.time()
-            if SAVE_TO_LOG and current_time - last_log_time >= LOG_INTERVAL_SECONDS:
+            changes = change_tracker.detect_changes(response)
+            if SAVE_TO_LOG and changes:
+                change_tracker.log_changes(changes)
                 save_to_log(response)
-                last_log_time = current_time
 
             time.sleep(REFRESH_INTERVAL)
     except KeyboardInterrupt:
