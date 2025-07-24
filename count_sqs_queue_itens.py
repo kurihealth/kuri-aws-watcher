@@ -200,6 +200,7 @@ if __name__ == "__main__":
 
         while True:
             response = run()
+            os.system(command='clear' if os.name == 'posix' else 'cls')
             format_output(response)
 
             changes = change_tracker.detect_changes(response)
