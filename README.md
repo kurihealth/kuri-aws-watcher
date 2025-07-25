@@ -7,6 +7,7 @@ Uma suíte de scripts Python para monitoramento e observabilidade de serviços A
 - **Monitoramento SQS**: Contagem em tempo real de mensagens em filas SQS
 - **Análise de DLQs**: Listagem detalhada de mensagens em Dead Letter Queues
 - **Monitoramento Lambda**: Coleta de métricas e logs do CloudWatch
+- **Execuções Lambda em Tempo Real**: Monitor que mostra quais funções estão executando no momento
 - **Configuração Flexível**: Todas as filas e funções configuráveis via variáveis de ambiente
 - **Exportação de Dados**: Salvamento em JSON para análise posterior
 - **Interface Interativa**: CLI amigável para configuração de parâmetros
@@ -90,6 +91,16 @@ LOG_FILE_PATH=sqs_monitoring.log
 SAVE_TO_LOG=false
 ```
 
+### Configurações do Monitor Lambda
+
+```env
+# Intervalo de atualização do monitor em tempo real (segundos)
+LAMBDA_MONITOR_INTERVAL_SECONDS=10
+
+# Período de métricas do CloudWatch (minutos)
+LAMBDA_METRIC_PERIOD_MINUTES=5
+```
+
 ## 📊 Uso
 
 ### 1. Monitoramento Contínuo de Filas SQS
@@ -139,7 +150,34 @@ python lambda_logs.py --default --output meus_logs.json
 - Interface CLI interativa
 - Exportação JSON estruturada
 
-### 4. Utilitário de Configuração
+### 4. Monitor de Execuções Lambda em Tempo Real
+
+```bash
+# Monitoramento padrão (todas as funções configuradas)
+python monitor_lambda_executions.py
+
+# Configurar intervalo personalizado (30 segundos)
+python monitor_lambda_executions.py --interval 30
+
+# Configurar período de métricas (10 minutos)
+python monitor_lambda_executions.py --period 10
+
+# Habilitar salvamento em log
+python monitor_lambda_executions.py --save-log
+
+# Combinar opções
+python monitor_lambda_executions.py --interval 15 --period 5 --save-log
+```
+
+**Funcionalidades**:
+- Monitoramento em tempo real de execuções ativas
+- Separação visual entre funções executando e inativas
+- Métricas de invocações, erros e throttles
+- Detecção automática de execuções concorrentes
+- Interface com atualização automática
+- Salvamento opcional em arquivo de log
+
+### 5. Utilitário de Configuração
 
 ```bash
 python config_utils.py
@@ -158,7 +196,8 @@ python config_utils.py
 1. **`count_sqs_queue_itens.py`**: Monitoramento contínuo em tempo real
 2. **`list_dlq_items.py`**: Análise detalhada de mensagens em DLQs
 3. **`lambda_logs.py`**: Monitoramento de funções Lambda AWS
-4. **`config_utils.py`**: Utilitário centralizado de configuração
+4. **`monitor_lambda_executions.py`**: Monitor de execuções Lambda em tempo real
+5. **`config_utils.py`**: Utilitário centralizado de configuração
 
 ### Classes Principais
 
@@ -167,20 +206,22 @@ python config_utils.py
 - **`LambdaConfig`**: Configuração específica de funções Lambda
 - **`DLQItemsLister`**: Listagem e análise de DLQs
 - **`MultiLambdaWatcher`**: Monitoramento de múltiplas funções Lambda
+- **`LambdaExecutionMonitor`**: Monitor de execuções Lambda em tempo real
 - **`InteractiveCLI`**: Interface interativa para configuração
 
 ## 📁 Estrutura de Arquivos
 
 ```
 sqs_viewer/
-├── count_sqs_queue_itens.py    # Monitoramento contínuo de filas
-├── list_dlq_items.py           # Listagem detalhada de DLQs
-├── lambda_logs.py              # Monitoramento de funções Lambda
-├── config_utils.py             # Utilitário de configuração
-├── requirements.txt            # Dependências Python
-├── .env.example               # Exemplo de configuração
-├── .gitignore                 # Arquivos ignorados pelo Git
-└── README.md                  # Esta documentação
+├── count_sqs_queue_itens.py      # Monitoramento contínuo de filas
+├── list_dlq_items.py             # Listagem detalhada de DLQs
+├── lambda_logs.py                # Monitoramento de funções Lambda
+├── monitor_lambda_executions.py  # Monitor execuções Lambda em tempo real
+├── config_utils.py               # Utilitário de configuração
+├── requirements.txt              # Dependências Python
+├── .env.example                 # Exemplo de configuração
+├── .gitignore                   # Arquivos ignorados pelo Git
+└── README.md                    # Esta documentação
 ```
 
 ## 🔍 Exemplos de Uso
@@ -206,6 +247,7 @@ lambda_functions = config_manager.lambda_config.get_default_functions()
 ```python
 from list_dlq_items import DLQItemsLister
 from lambda_logs import MultiLambdaWatcher
+from monitor_lambda_executions import LambdaExecutionMonitor
 
 # Listar mensagens DLQ
 lister = DLQItemsLister()
@@ -219,6 +261,11 @@ results = watcher.get_multiple_functions_logs(
     hours_back=4,
     errors_only=True
 )
+
+# Monitor de execuções em tempo real
+monitor = LambdaExecutionMonitor()
+metrics = monitor.get_all_functions_metrics()
+monitor.print_monitoring_display(metrics)
 ```
 
 ### Configuração Personalizada
