@@ -1,35 +1,47 @@
 # Context - Estado Atual do Projeto
 
 ## Foco Atual
-- Projeto funcional e completo para monitoramento de filas SQS e funções Lambda
-- Scripts prontos para uso em produção
-- Configuração via variáveis de ambiente implementada
+- Suíte completa de 6 scripts Python para observabilidade AWS
+- Ferramentas maduras e prontas para uso em produção
+- Arquitetura modular bem estabelecida com configuração centralizada
+- Sistema de monitoramento em tempo real implementado
 
 ## Mudanças Recentes
-- Inicialização do Memory Bank realizada em 16/07/2025
-- Análise completa da arquitetura e funcionalidades
-- Documentação estruturada criada
+- Memory Bank atualizado em 25/07/2025
+- Identificados 2 novos scripts principais:
+  - `list_lambda_functions.py`: Listagem e análise detalhada de funções Lambda
+  - `monitor_lambda_executions.py`: Monitoramento em tempo real de execuções Lambda
+- Configuração de linting/formatação com Ruff implementada
+- Arquitetura expandida para 6 componentes principais
 
 ## Próximos Passos
-- Validar configurações com usuário
-- Possíveis melhorias futuras listadas no README:
+- Sistema funcionalmente completo
+- Melhorias futuras opcionais listadas no README:
   - Interface web para visualização
   - Alertas automáticos via Slack/Email
   - Dashboard unificado
   - Suporte a múltiplas regiões AWS
   - Testes unitários automatizados
-  - Métricas customizadas
   - Cache de resultados
   - API REST para integração
 
-## Estado dos Scripts
+## Estado Atual dos Scripts
 - `count_sqs_queue_itens.py`: Funcional, monitora filas em tempo real
 - `list_dlq_items.py`: Funcional, lista e exporta mensagens de DLQs
 - `lambda_logs.py`: Funcional, coleta logs com múltiplos modos de operação
+- `list_lambda_functions.py`: Funcional, descoberta e catalogação de funções Lambda
+- `monitor_lambda_executions.py`: Funcional, monitoramento em tempo real de execuções
 - `config_utils.py`: Funcional, centraliza configurações e validações
 
+## Ferramentas de Desenvolvimento
+- `ruff.toml`: Configuração de linting e formatação Python moderna
+- `.env.example`: Template completo de configuração
+- Estrutura de projeto bem organizada e documentada
+
 ## Observações
-- Todos os scripts utilizam o padrão de configuração centralizada
-- Interface visual consistente com emojis informativos
-- Tratamento de erros robusto implementado
-- Suporte a exportação JSON em todos os scripts
+- Todos os scripts seguem padrões consistentes de configuração e interface
+- Suporte robusto a CLI com argumentos flexíveis
+- Interface visual unificada com emojis informativos
+- Tratamento de erros consistente implementado
+- Exportação JSON padronizada em todos os scripts
+- Sistema de filtering avançado implementado nos novos scripts

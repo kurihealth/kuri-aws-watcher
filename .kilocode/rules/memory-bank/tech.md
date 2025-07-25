@@ -66,6 +66,10 @@ python config_utils.py
 - `LOG_FILE_PATH`: Caminho do arquivo de log (padrão: sqs_monitoring.log)
 - `SAVE_TO_LOG`: Habilitar salvamento em log (true/false)
 
+### Configuração de Monitoramento Lambda
+- `LAMBDA_MONITOR_INTERVAL_SECONDS`: Intervalo de atualização do monitor (padrão: 10)
+- `LAMBDA_METRIC_PERIOD_MINUTES`: Período de coleta de métricas (padrão: 5)
+
 ## Padrões de Código
 
 ### Estrutura de Classes
@@ -82,6 +86,13 @@ python config_utils.py
 - Emojis Unicode para feedback visual
 - Timestamps em formato ISO 8601
 - JSON com indentação para legibilidade
+
+### Linting e Formatação (Ruff)
+- **Arquivo**: `ruff.toml`
+- **Target**: Python 3.12
+- **Line length**: 120 caracteres
+- **Rules**: Pycodestyle (E,W), Pyflakes (F), Import sorting (I), Naming (N), Python upgrades (UP)
+- **Formatação**: Double quotes, espaços para indentação
 
 ## Limitações Técnicas
 
@@ -118,6 +129,9 @@ python config_utils.py
 - `logs:FilterLogEvents`
 - `logs:DescribeLogGroups`
 - `logs:DescribeLogStreams`
+- `lambda:ListFunctions`
+- `lambda:GetFunction`
+- `cloudwatch:GetMetricData`
 
 ## Performance
 
@@ -125,8 +139,38 @@ python config_utils.py
 - Paginação automática para grandes volumes
 - Cache implícito via ConfigManager
 - Processamento assíncrono não implementado
+- Polling inteligente com intervalo configurável
 
 ### Monitoramento
 - Logs estruturados para análise
 - Métricas de execução nos outputs
 - Timestamps para rastreamento
+- Monitoramento em tempo real com display visual
+- Coleta automática de métricas CloudWatch
+
+## Ferramentas de Desenvolvimento
+
+### Ruff (Linter/Formatter)
+- **Performance**: Muito mais rápido que ferramentas tradicionais (Black, Flake8)
+- **Compatibilidade**: Python 3.12+ com suporte a recursos modernos
+- **Configuração**: Centralizada em `ruff.toml`
+- **Regras**: Combination de múltiplas ferramentas em uma só
+
+### Estruturas de Dados Modernas
+- **Type hints**: Utilizados extensivamente (dict[str, Any], list[dict])
+- **Pattern matching**: Não utilizado mas suportado
+- **Dataclasses**: Não utilizado atualmente, mas poderia ser implementado
+
+## Capacidades Específicas dos Scripts
+
+### list_lambda_functions.py
+- **Paginação**: Suporte a contas com muitas funções Lambda
+- **Filtragem**: Por runtime, nome, estado, arquitetura
+- **Análise**: Estatísticas detalhadas de uso e configuração
+- **Export**: JSON estruturado com metadados completos
+
+### monitor_lambda_executions.py
+- **Tempo Real**: Atualização automática a cada 10 segundos
+- **Métricas CloudWatch**: Coleta automática de invocações, erros, throttles
+- **Display Visual**: Interface colorida com ícones informativos
+- **Detecção de Execução**: Identifica funções executando via execuções concorrentes

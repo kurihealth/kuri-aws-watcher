@@ -7,12 +7,15 @@ O Kuri AWS Watcher & Lambda Watcher é uma suíte de scripts Python independente
 ## Estrutura de Arquivos
 
 ```
-sqs_viewer/
+kuri-aws-watcher/
 ├── config_utils.py              # Módulo central de configuração
 ├── count_sqs_queue_itens.py    # Monitor contínuo de filas SQS
 ├── list_dlq_items.py           # Analisador de Dead Letter Queues
 ├── lambda_logs.py              # Monitor de logs Lambda
+├── list_lambda_functions.py    # Listagem de funções Lambda
+├── monitor_lambda_executions.py # Monitor de execuções Lambda em tempo real
 ├── requirements.txt            # Dependências Python
+├── ruff.toml                   # Configuração de linting e formatação
 ├── .env.example               # Template de configuração
 ├── .gitignore                 # Arquivos ignorados
 └── README.md                  # Documentação principal
@@ -56,6 +59,28 @@ sqs_viewer/
   - CLI: Parâmetros via linha de comando
   - Interativo: Menu guiado
 
+### 5. Listagem de Funções Lambda (list_lambda_functions.py)
+- **Responsabilidade**: Descoberta e catalogação de funções Lambda
+- **Classes**:
+  - `LambdaFunctionLister`: Gerencia listagem e análise de funções
+- **Características**:
+  - Lista todas as funções Lambda da conta
+  - Coleta informações detalhadas (runtime, tamanho, configuração)
+  - Filtragem por runtime, nome, estado e arquitetura
+  - Geração de estatísticas agregadas
+- **Dependências**: `ConfigManager` para configuração AWS
+
+### 6. Monitor de Execuções Lambda (monitor_lambda_executions.py)
+- **Responsabilidade**: Monitoramento em tempo real de execuções Lambda
+- **Classes**:
+  - `LambdaExecutionMonitor`: Coleta métricas e execuções ativas
+- **Características**:
+  - Monitoramento contínuo com atualizações em tempo real
+  - Detecção de funções em execução via métricas CloudWatch
+  - Display visual com cores e ícones informativos
+  - Coleta de métricas de performance (duração, taxa de erro, throttles)
+- **Dependências**: `ConfigManager` para configuração e CloudWatch para métricas
+
 ## Padrões de Design
 
 ### 1. Configuração Centralizada
@@ -95,6 +120,16 @@ ConfigManager → Lista DLQs → boto3.SQS → Mensagens → Formatação → JS
 LambdaConfig → Funções → boto3.CloudWatch → Logs → Filtros → JSON/Console
 ```
 
+### Listagem de Funções Lambda
+```
+ConfigManager → boto3.Lambda → Lista de Funções → Processamento → Estatísticas → JSON/Console
+```
+
+### Monitor de Execuções Lambda
+```
+LambdaConfig → Funções → boto3.CloudWatch → Métricas → Análise → Display Tempo Real
+```
+
 ## Decisões Técnicas
 
 ### 1. Scripts Independentes vs Aplicação Monolítica
@@ -113,12 +148,28 @@ LambdaConfig → Funções → boto3.CloudWatch → Logs → Filtros → JSON/Co
 - **Escolha**: Uso extensivo de emojis Unicode
 - **Razão**: Feedback visual imediato, melhor UX em terminal
 
+## Decisões Técnicas Adicionais
+
+### 5. Padrão de Configuração CLI
+- **Escolha**: ArgumentParser com flags opcionais em todos os scripts
+- **Razão**: Flexibilidade entre uso programático e linha de comando
+
+### 6. Monitoramento Tempo Real
+- **Escolha**: Polling de métricas do CloudWatch a cada 10 segundos
+- **Razão**: Balance entre responsividade e limites de API
+
+### 7. Formatação de Código
+- **Escolha**: Ruff como linter/formatter
+- **Razão**: Performance, configurabilidade e compatibilidade Python moderno
+
 ## Pontos de Extensão
 
 1. **Novos Tipos de Fila**: Adicionar em `SQSConfig`
 2. **Novas Funções Lambda**: Configurar via variáveis de ambiente
 3. **Novos Formatos de Saída**: Estender métodos de exportação
 4. **Integração com Alertas**: Hooks nos pontos de detecção de erro
+5. **Filtros Avançados**: Implementar em `LambdaFunctionLister`
+6. **Métricas Customizadas**: Extensão de `LambdaExecutionMonitor`
 
 ## Limitações Arquiteturais
 
