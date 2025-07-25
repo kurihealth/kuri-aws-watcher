@@ -4,15 +4,17 @@ Monitor de Execuções Lambda em Tempo Real
 Monitora execuções ativas, métricas e status das funções Lambda em tempo real
 """
 
-import boto3
+import argparse
 import json
 import os
 import sys
 import time
-import argparse
-from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Any, Optional
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+import boto3
 from dotenv import load_dotenv
+
 from config_utils import ConfigManager
 
 load_dotenv()
@@ -52,7 +54,7 @@ class LambdaExecutionMonitor:
         # Cache para comparação
         self.previous_metrics = {}
 
-    def get_function_metrics(self, function_name: str) -> Dict[str, Any]:
+    def get_function_metrics(self, function_name: str) -> dict[str, Any]:
         """
         Coleta métricas de uma função Lambda específica
 
@@ -62,7 +64,7 @@ class LambdaExecutionMonitor:
         Returns:
             Dict com métricas da função
         """
-        end_time = datetime.now(tz=timezone.utc)
+        end_time = datetime.now(tz=UTC)
         start_time = end_time - timedelta(minutes=self.metric_period)
 
         metrics = {
@@ -210,7 +212,7 @@ class LambdaExecutionMonitor:
             metrics['error_message'] = str(e)
             return metrics
 
-    def get_all_functions_metrics(self) -> Dict[str, Any]:
+    def get_all_functions_metrics(self) -> dict[str, Any]:
         """
         Coleta métricas de todas as funções configuradas
 
@@ -220,7 +222,7 @@ class LambdaExecutionMonitor:
         functions = self.lambda_config.get_all_available_functions()
 
         results = {
-            'timestamp': datetime.now(tz=timezone.utc).isoformat(),
+            'timestamp': datetime.now(tz=UTC).isoformat(),
             'total_functions': len(functions),
             'monitoring_period_minutes': self.metric_period,
             'functions': {},
@@ -256,7 +258,7 @@ class LambdaExecutionMonitor:
 
         return results
 
-    def print_monitoring_display(self, data: Dict[str, Any]) -> None:
+    def print_monitoring_display(self, data: dict[str, Any]) -> None:
         """
         Exibe dados de monitoramento formatados no console
 
@@ -355,7 +357,7 @@ class LambdaExecutionMonitor:
         print("=" * 100)
         print("Pressione Ctrl+C para sair")
 
-    def _get_status_icon(self, metrics: Dict[str, Any]) -> str:
+    def _get_status_icon(self, metrics: dict[str, Any]) -> str:
         """
         Retorna ícone baseado no status da função
 
@@ -376,7 +378,7 @@ class LambdaExecutionMonitor:
         else:
             return "💤"
 
-    def save_monitoring_log(self, data: Dict[str, Any]) -> None:
+    def save_monitoring_log(self, data: dict[str, Any]) -> None:
         """
         Salva dados de monitoramento em arquivo JSON
 

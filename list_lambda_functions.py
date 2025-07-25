@@ -4,14 +4,16 @@ Lambda Functions Lister - Lista todas as funções Lambda disponíveis na conta 
 Fornece informações detalhadas sobre configuração, runtime, tamanho e última modificação
 """
 
-import boto3
+import argparse
 import json
 import os
 import sys
-import argparse
-from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
+from datetime import UTC, datetime
+from typing import Any
+
+import boto3
 from dotenv import load_dotenv
+
 from config_utils import ConfigManager
 
 load_dotenv()
@@ -38,7 +40,7 @@ class LambdaFunctionLister:
         self.lambda_client = self.session.client('lambda')
         self.config_manager = ConfigManager()
 
-    def list_all_functions(self, include_details: bool = True) -> Dict[str, Any]:
+    def list_all_functions(self, include_details: bool = True) -> dict[str, Any]:
         """
         Lista todas as funções Lambda disponíveis na conta
 
@@ -70,7 +72,7 @@ class LambdaFunctionLister:
 
             return {
                 'metadata': {
-                    'generated_at': datetime.now(tz=timezone.utc).isoformat(),
+                    'generated_at': datetime.now(tz=UTC).isoformat(),
                     'region': self.region,
                     'account_id': self.config_manager.aws_config.account_id,
                     'include_details': include_details,
@@ -86,7 +88,7 @@ class LambdaFunctionLister:
 
             return {
                 'metadata': {
-                    'generated_at': datetime.now(tz=timezone.utc).isoformat(),
+                    'generated_at': datetime.now(tz=UTC).isoformat(),
                     'region': self.region,
                     'account_id': self.config_manager.aws_config.account_id,
                     'include_details': include_details,
@@ -105,8 +107,8 @@ class LambdaFunctionLister:
             }
 
     def _process_function_info(
-        self, function: Dict[str, Any], include_details: bool
-    ) -> Dict[str, Any]:
+        self, function: dict[str, Any], include_details: bool
+    ) -> dict[str, Any]:
         """
         Processa informações de uma função Lambda
 
@@ -180,7 +182,7 @@ class LambdaFunctionLister:
 
         return function_info
 
-    def _calculate_statistics(self, functions: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _calculate_statistics(self, functions: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Calcula estatísticas das funções Lambda
 
@@ -252,8 +254,8 @@ class LambdaFunctionLister:
         }
 
     def filter_functions(
-        self, data: Dict[str, Any], filters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, data: dict[str, Any], filters: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Aplica filtros aos dados das funções
 
@@ -320,7 +322,7 @@ class LambdaFunctionLister:
 
         return filtered_data
 
-    def save_to_json(self, data: Dict[str, Any], filename: Optional[str] = None) -> str:
+    def save_to_json(self, data: dict[str, Any], filename: str | None = None) -> str:
         """
         Salva dados em arquivo JSON
 
@@ -346,7 +348,7 @@ class LambdaFunctionLister:
             print(f"❌ Erro ao salvar arquivo: {e}")
             return ""
 
-    def print_summary(self, data: Dict[str, Any]) -> None:
+    def print_summary(self, data: dict[str, Any]) -> None:
         """
         Exibe resumo formatado dos dados coletados
 
@@ -372,7 +374,7 @@ class LambdaFunctionLister:
             print(f"📊 Funções originais: {metadata['original_count']}")
             print(f"📊 Funções filtradas: {metadata['filtered_count']}")
 
-        print(f"\n📋 ESTATÍSTICAS GERAIS:")
+        print("\n📋 ESTATÍSTICAS GERAIS:")
         print(f"   • Total de funções: {statistics['total_functions']}")
         print(f"   • Tamanho total do código: {statistics['total_code_size_mb']} MB")
 
@@ -380,15 +382,15 @@ class LambdaFunctionLister:
             print(f"   • Timeout médio: {statistics['average_timeout']}s")
             print(f"   • Memória média: {statistics['average_memory']} MB")
 
-        print(f"\n🔧 POR RUNTIME:")
+        print("\n🔧 POR RUNTIME:")
         for runtime, count in statistics['by_runtime'].items():
             print(f"   • {runtime}: {count}")
 
-        print(f"\n🏗️ POR ARQUITETURA:")
+        print("\n🏗️ POR ARQUITETURA:")
         for arch, count in statistics['by_architecture'].items():
             print(f"   • {arch}: {count}")
 
-        print(f"\n📊 POR ESTADO:")
+        print("\n📊 POR ESTADO:")
         for state, count in statistics['by_state'].items():
             print(f"   • {state}: {count}")
 
@@ -541,9 +543,9 @@ Exemplos de uso:
             if saved_file:
                 print(f"\n✅ Processo concluído! Arquivo salvo: {saved_file}")
             else:
-                print(f"\n⚠️ Processo concluído, mas houve erro ao salvar arquivo.")
+                print("\n⚠️ Processo concluído, mas houve erro ao salvar arquivo.")
         else:
-            print(f"\n✅ Processo concluído!")
+            print("\n✅ Processo concluído!")
 
     except KeyboardInterrupt:
         print("\n\n👋 Operação interrompida pelo usuário.")

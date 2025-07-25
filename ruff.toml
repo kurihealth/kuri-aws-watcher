@@ -1,0 +1,64 @@
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "tests",
+    "localtests",
+]
+
+line-length = 120
+indent-width = 4
+target-version = "py312"
+
+[lint]
+select = [
+    "E",  # Erros do Pycodestyle
+    "F",  # Erros do Pyflakes
+    "W",  # Avisos do Pycodestyle
+    "I",  # Import sorting
+    "N",  # Nomes não convencionais (PEP8)
+    "UP", # Atualizações para Python moderno
+]
+ignore = [
+    "E501", # Ignora aviso de linha muito longa
+]
+
+[lint.per-file-ignores]
+"validator/src/**/*.py" = ["F403", "F405"]
+"shared/datamodels/src/model_formatter.py" = ["F403", "F405"]
+"context/src/helpers/reference_table_contexts.py" = ["F403", "F405"]
+"kamis/src/claimdenial/claim_denial_justifier.py" = ["F403", "F405"]
+"context/src/referencetablecontext/context_reference_tables.py" = ["F403", "F405"]
+"context/src/generalcontext/context_general.py" = ["F403", "F405"]
+"shared/datamodels/src/item_model.py" = ["UP"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+

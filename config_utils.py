@@ -5,7 +5,8 @@ Centraliza a lógica de construção de URLs e configurações usando variáveis
 """
 
 import os
-from typing import List, Tuple, Dict, Any
+from typing import Any
+
 from dotenv import load_dotenv
 
 # Carrega variáveis de ambiente
@@ -24,7 +25,7 @@ class AWSConfig:
                 "AWS_ACCOUNT_ID não está definido nas variáveis de ambiente"
             )
 
-    def validate_config(self) -> Dict[str, Any]:
+    def validate_config(self) -> dict[str, Any]:
         """
         Valida as configurações AWS necessárias
 
@@ -58,7 +59,7 @@ class SQSConfig:
     def __init__(self, aws_config: AWSConfig):
         self.aws_config = aws_config
 
-    def get_dlq_list(self) -> List[Tuple[str, str]]:
+    def get_dlq_list(self) -> list[tuple[str, str]]:
         """
         Constrói a lista de DLQs usando variáveis de ambiente
 
@@ -74,7 +75,7 @@ class SQSConfig:
 
         return self._build_queue_urls(dlq_configs)
 
-    def get_main_queue_list(self) -> List[Tuple[str, str]]:
+    def get_main_queue_list(self) -> list[tuple[str, str]]:
         """
         Constrói a lista de filas principais usando variáveis de ambiente
 
@@ -96,7 +97,7 @@ class SQSConfig:
 
         return self._build_queue_urls(queue_configs)
 
-    def get_all_queue_list(self) -> List[Tuple[str, str]]:
+    def get_all_queue_list(self) -> list[tuple[str, str]]:
         """
         Constrói a lista completa de filas (DLQs + principais)
 
@@ -106,8 +107,8 @@ class SQSConfig:
         return self.get_dlq_list() + self.get_main_queue_list()
 
     def _build_queue_urls(
-        self, queue_configs: List[Tuple[str, str]]
-    ) -> List[Tuple[str, str]]:
+        self, queue_configs: list[tuple[str, str]]
+    ) -> list[tuple[str, str]]:
         """
         Constrói URLs das filas a partir das configurações
 
@@ -126,7 +127,7 @@ class SQSConfig:
 
         return queue_url_list
 
-    def get_queue_config_summary(self) -> Dict[str, Any]:
+    def get_queue_config_summary(self) -> dict[str, Any]:
         """
         Retorna um resumo das configurações de filas
 
@@ -153,7 +154,7 @@ class LambdaConfig:
     def __init__(self):
         pass
 
-    def get_default_functions(self) -> List[str]:
+    def get_default_functions(self) -> list[str]:
         """
         Retorna lista de funções Lambda padrão das variáveis de ambiente
 
@@ -165,7 +166,7 @@ class LambdaConfig:
         )
         return [f.strip() for f in default_functions_env.split(",") if f.strip()]
 
-    def get_additional_functions(self) -> List[str]:
+    def get_additional_functions(self) -> list[str]:
         """
         Retorna lista de funções Lambda adicionais das variáveis de ambiente
 
@@ -177,7 +178,7 @@ class LambdaConfig:
         )
         return [f.strip() for f in additional_functions_env.split(",") if f.strip()]
 
-    def get_all_available_functions(self) -> List[str]:
+    def get_all_available_functions(self) -> list[str]:
         """
         Retorna lista completa de funções disponíveis (padrão + adicionais)
 
@@ -209,7 +210,7 @@ class LambdaConfig:
 
         return service_mapping.get(service.lower(), service)
 
-    def get_lambda_config_summary(self) -> Dict[str, Any]:
+    def get_lambda_config_summary(self) -> dict[str, Any]:
         """
         Retorna um resumo das configurações de Lambda
 
@@ -242,7 +243,7 @@ class ConfigManager:
         self.sqs_config = SQSConfig(self.aws_config)
         self.lambda_config = LambdaConfig()
 
-    def validate_all_configs(self) -> Dict[str, Any]:
+    def validate_all_configs(self) -> dict[str, Any]:
         """
         Valida todas as configurações
 
@@ -275,31 +276,31 @@ class ConfigManager:
         )
 
         # Configurações AWS
-        print(f"\n🔧 AWS:")
+        print("\n🔧 AWS:")
         print(f"   • Região: {self.aws_config.region}")
         print(f"   • Account ID: {self.aws_config.account_id}")
 
         # Erros e avisos
         if validation["aws"]["errors"]:
-            print(f"\n❌ Erros:")
+            print("\n❌ Erros:")
             for error in validation["aws"]["errors"]:
                 print(f"   • {error}")
 
         if validation["aws"]["warnings"]:
-            print(f"\n⚠️ Avisos:")
+            print("\n⚠️ Avisos:")
             for warning in validation["aws"]["warnings"]:
                 print(f"   • {warning}")
 
         # Configurações SQS
         sqs_summary = validation["sqs_summary"]
-        print(f"\n📬 SQS:")
+        print("\n📬 SQS:")
         print(f"   • Total de filas: {sqs_summary['total_queues']}")
         print(f"   • DLQs: {sqs_summary['dlq_count']}")
         print(f"   • Filas principais: {sqs_summary['main_queue_count']}")
 
         # Configurações Lambda
         lambda_summary = validation["lambda_summary"]
-        print(f"\n⚡ Lambda:")
+        print("\n⚡ Lambda:")
         print(f"   • Funções padrão: {', '.join(lambda_summary['default_functions'])}")
         print(f"   • Total disponível: {lambda_summary['total_available']}")
 

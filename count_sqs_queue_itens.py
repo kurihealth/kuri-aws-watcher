@@ -1,9 +1,11 @@
-import time
-import boto3
-import os
 import json
+import os
+import time
 from datetime import datetime
+
+import boto3
 from dotenv import load_dotenv
+
 from config_utils import ConfigManager
 
 # Carrega variáveis de ambiente do arquivo .env

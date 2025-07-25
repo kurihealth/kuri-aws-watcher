@@ -4,14 +4,16 @@ Lambda Watcher V2 - Sistema avançado de monitoramento de logs Lambda
 Suporte a múltiplas funções, filtros de erro, interface CLI interativa e saída JSON estruturada
 """
 
-import boto3
+import argparse
 import json
 import os
 import sys
-import argparse
-from datetime import datetime, timedelta, timezone
-from typing import List, Dict, Any, Optional
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+import boto3
 from dotenv import load_dotenv
+
 from config_utils import LambdaConfig
 
 load_dotenv()
@@ -53,7 +55,7 @@ class MultiLambdaWatcher:
 
     def get_function_logs(
         self, function_name: str, hours_back: int = 4, errors_only: bool = True
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Recupera logs de uma função Lambda específica
 
@@ -68,7 +70,7 @@ class MultiLambdaWatcher:
         log_group_name = f"/aws/lambda/{function_name}"
 
         # Calcular timestamps
-        end_time = datetime.now(tz=timezone.utc)
+        end_time = datetime.now(tz=UTC)
         start_time = end_time - timedelta(hours=hours_back)
 
         start_timestamp = int(start_time.timestamp() * 1000)
@@ -104,7 +106,7 @@ class MultiLambdaWatcher:
 
             for event in events:
                 timestamp = datetime.fromtimestamp(
-                    event['timestamp'] / 1000, tz=timezone.utc
+                    event['timestamp'] / 1000, tz=UTC
                 )
                 message = event['message'].strip()
 
@@ -181,8 +183,8 @@ class MultiLambdaWatcher:
             }
 
     def get_multiple_functions_logs(
-        self, function_names: List[str], hours_back: int = 4, errors_only: bool = True
-    ) -> Dict[str, Any]:
+        self, function_names: list[str], hours_back: int = 4, errors_only: bool = True
+    ) -> dict[str, Any]:
         """
         Recupera logs de múltiplas funções Lambda
 
@@ -228,7 +230,7 @@ class MultiLambdaWatcher:
         # Estrutura final do JSON
         output = {
             'metadata': {
-                'generated_at': datetime.now(tz=timezone.utc).isoformat(),
+                'generated_at': datetime.now(tz=UTC).isoformat(),
                 'query_parameters': {
                     'function_names': function_names,
                     'hours_back': hours_back,
@@ -242,7 +244,7 @@ class MultiLambdaWatcher:
 
         return output
 
-    def save_to_json(self, data: Dict[str, Any], filename: Optional[str] = None) -> str:
+    def save_to_json(self, data: dict[str, Any], filename: str | None = None) -> str:
         """
         Salva dados em arquivo JSON
 
@@ -268,7 +270,7 @@ class MultiLambdaWatcher:
             print(f"❌ Erro ao salvar arquivo: {e}")
             return ""
 
-    def print_summary(self, data: Dict[str, Any]) -> None:
+    def print_summary(self, data: dict[str, Any]) -> None:
         """
         Exibe resumo formatado dos dados coletados
 
@@ -394,7 +396,7 @@ class InteractiveCLI:
                 print("\n\n👋 Operação cancelada pelo usuário.")
                 sys.exit(0)
 
-    def get_lambda_functions(self) -> List[str]:
+    def get_lambda_functions(self) -> list[str]:
         """Solicita seleção de funções Lambda"""
         print("\n🔧 SELEÇÃO DE FUNÇÕES LAMBDA")
         print("1. Usar funções padrão (context, kamis, validator)")
@@ -418,7 +420,7 @@ class InteractiveCLI:
                 print("\n\n👋 Operação cancelada pelo usuário.")
                 sys.exit(0)
 
-    def _select_specific_functions(self) -> List[str]:
+    def _select_specific_functions(self) -> list[str]:
         """Permite seleção específica de funções"""
         # Usar o utilitário de configuração para obter todas as funções disponíveis
         available_functions = self.lambda_config.get_all_available_functions()
@@ -450,7 +452,7 @@ class InteractiveCLI:
             except ValueError:
                 print("❌ Formato inválido. Use números separados por vírgula.")
 
-    def _get_custom_functions(self) -> List[str]:
+    def _get_custom_functions(self) -> list[str]:
         """Permite inserção de lista personalizada"""
         print("\nDigite os nomes das funções Lambda (separados por vírgula):")
         print("Exemplo: minha-funcao-1,minha-funcao-2,outra-funcao")
@@ -475,7 +477,7 @@ class InteractiveCLI:
                 print("\n\n👋 Operação cancelada pelo usuário.")
                 sys.exit(0)
 
-    def run_interactive_mode(self) -> Dict[str, Any]:
+    def run_interactive_mode(self) -> dict[str, Any]:
         """Executa modo interativo completo"""
         print("🚀 LAMBDA WATCHER V2 - MODO INTERATIVO")
         print("=" * 80)
@@ -606,7 +608,7 @@ Exemplos de uso:
 
     # Executar coleta de logs
     try:
-        print(f"\n🔄 Coletando logs...")
+        print("\n🔄 Coletando logs...")
 
         results = watcher.get_multiple_functions_logs(
             function_names=config['function_names'],
@@ -625,9 +627,9 @@ Exemplos de uso:
             if saved_file:
                 print(f"\n✅ Processo concluído! Arquivo salvo: {saved_file}")
             else:
-                print(f"\n⚠️ Processo concluído, mas houve erro ao salvar arquivo.")
+                print("\n⚠️ Processo concluído, mas houve erro ao salvar arquivo.")
         else:
-            print(f"\n✅ Processo concluído!")
+            print("\n✅ Processo concluído!")
 
     except KeyboardInterrupt:
         print("\n\n👋 Operação interrompida pelo usuário.")
