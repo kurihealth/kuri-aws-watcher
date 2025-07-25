@@ -271,7 +271,7 @@ class DLQItemsLister:
                     return False
 
                 return True
-            except:
+            except (ValueError, TypeError, KeyError):
                 return True  # Em caso de erro, passa o filtro
 
         description = f"Mensagens entre {start_time or 'início'} e {end_time or 'fim'}"
@@ -398,7 +398,7 @@ class DLQItemsLister:
                 bool_value2 = str_value2.lower() in ['true', '1', 'yes', 'sim']
                 if bool_value1 == bool_value2:
                     return True
-            except:
+            except (AttributeError, TypeError):
                 pass
 
             return False
